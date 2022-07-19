@@ -2,18 +2,21 @@
 
 from sqlalchemy import column
 import streamlit as st
-from datetime import datetime as date
+from datetime import datetime
+from sympy import fu
 import yfinance as yf
 from prophet import Prophet
 from prophet.plot import plot_plotly
 from plotly import graph_objs as go
+from dateutil.relativedelta import relativedelta
+import numpy as np
 
+START = datetime.now() - relativedelta(years=3) 
+TODAY = datetime.today()
 
-
-START = '2015-01-01'
-TODAY = date.today()
 st.title('Stock Prediction')
 stocks = ('ALK', 'DAL', 'LUV', 'SAVE', 'ALGT', 'AAL', 'ULCC', 'HA', 'JBLU', 'SNCY', 'UAL')
+# stocks = ('AMZN', 'SAVE', 'SYY')
 
 selected_stock = st.selectbox('Select Dataset', stocks)
 
@@ -49,6 +52,8 @@ df_train = df_train.rename(columns = {'Date' : 'ds', 'Close' : 'y'})
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods = period)
+# df_no_weekdays = df[df['ds'].dt.dayofweek < 5]
+future = future[future['ds'].dt.dayofweek < 5]
 forcast = m.predict(future)
 
 st.subheader('Forcast Data')
